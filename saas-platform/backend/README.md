@@ -31,6 +31,32 @@ backend/
 └── README.md                  # 项目文档
 ```
 
+# Backend (pnpm)
+
+本目录已切换为 pnpm 管理依赖。
+
+推荐在容器中或本地运行以下命令安装 pnpm（使用 corepack）并安装依赖：
+
+```bash
+# 启用 corepack 并激活 pnpm
+corepack enable
+corepack prepare pnpm@8 --activate
+
+# 或使用官方安装脚本（任选其一）
+# curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+# 安装依赖（在 backend 目录）
+cd backend
+pnpm install
+```
+
+首次安装会生成 pnpm-lock.yaml。若以前存在 package-lock.json 和/或 yarn.lock，请在切换 to pnpm 前删除这些锁文件以避免混淆。
+
+常用命令：
+- pnpm install
+- pnpm add <pkg> # 添加依赖
+- pnpm add -D <pkg> # 添加 dev 依赖
+- pnpm run build / pnpm run dev / pnpm run start / pnpm run test
 ## 安装与运行
 1. 克隆项目：
    ```
