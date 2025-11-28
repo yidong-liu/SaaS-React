@@ -41,20 +41,19 @@ saas-platform/
    ```
    git clone <repository-url>
    cd saas-platform
+   pnpm install
    ```
 
 2. 前端安装：
    ```
    cd frontend
-   npm install
-   npm run dev
+   pnpm run dev
    ```
 
 3. 后端安装：
    ```
    cd backend
-   npm install
-   npm run start
+   pnpm run start
    ```
 
 4. 使用 Docker 启动服务：

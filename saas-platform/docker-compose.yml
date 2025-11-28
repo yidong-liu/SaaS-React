@@ -1,37 +1,80 @@
-version: '3.8'
-
 services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app:delegated
+      - /app/node_modules
     environment:
       - NODE_ENV=development
+    depends_on:
+      - backend
 
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - '3001:3001'
+    volumes:
+      - ./backend:/app:delegated
+      - /app/node_modules
+    env_file:
+      - ./backend/.env
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
     depends_on:
       - postgres
       - redis
 
   postgres:
     image: postgres:15
+    container_name: saas_platform_postgres
     environment:
-      - POSTGRES_PASSWORD=dev123
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-saas_platform}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest # 改为 latest 或 8.12
+    container_name: saas_platform_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - '8080:80'
+    depends_on:
+      - postgres
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
+    container_name: saas_platform_redis
     volumes:
-      - redis_data:/data
+      - redis-data:/data
+    ports:
+      - '6379:6379'
+    restart: unless-stopped
+    command: redis-server --appendonly yes
 
 volumes:
-  postgres_data:
-  redis_data:
+  postgres-data:
+    name: saas_platform_pgdata
+  redis-data:
+    name: saas_platform_redis_data
+  pgadmin-data:
+    name: saas_platform_pgadmin_data
