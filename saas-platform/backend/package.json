@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "vercel-build": "tsc -p tsconfig.build.json",
-    "dev": "ts-node src/main.ts",
+    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/main.ts",
+    "dev:prod": "ts-node -r tsconfig-paths/register src/main.ts",
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --ext .ts,.tsx,.js,.jsx --fix",
     "lint:ci": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --ext .ts,.tsx,.js,.jsx --max-warnings=0",
@@ -15,10 +16,11 @@
     "test": "jest"
   },
   "dependencies": {
-    "@nestjs/common": "^9.0.0",
-    "@nestjs/core": "^9.0.0",
-    "@nestjs/jwt": "^9.0.0",
-    "@nestjs/passport": "^9.0.0",
+    "@nestjs/common": "^9.4.3",
+    "@nestjs/core": "^9.4.3",
+    "@nestjs/jwt": "^11.0.1",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^9.4.3",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.1",
@@ -27,14 +29,15 @@
     "pg": "^8.7.1",
     "redis": "^4.0.0",
     "rxjs": "^7.0.0",
-    "typeorm": "^0.2.41",
-    "serverless-http": "^2.8.0"
+    "serverless-http": "^4.0.0",
+    "typeorm": "^0.2.41"
   },
   "devDependencies": {
     "@types/jest": "^27.0.0",
     "@types/node": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
+    "chokidar": "^3.6.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
@@ -44,6 +47,9 @@
     "jest": "^27.0.0",
     "prettier": "^3.7.1",
     "ts-jest": "^27.0.0",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^3.14.0",
     "typescript": "^4.5.0"
   },
   "engines": {
