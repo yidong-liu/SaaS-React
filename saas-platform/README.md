@@ -1,3 +1,11 @@
+<!--
+ * @Author: 刘易东 154659668+yidong-liu@users.noreply.github.com
+ * @Date: 2025-11-27 12:16:50
+ * @LastEditors: 刘易东 154659668+yidong-liu@users.noreply.github.com
+ * @LastEditTime: 2025-11-29 04:42:12
+ * @FilePath: /SasS-React/saas-platform/README.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 # SasS-React
 # 企业级 SaaS 平台架构设计
 
@@ -58,7 +66,7 @@ saas-platform/
 
 4. 使用 Docker 启动服务：
    ```
-   docker-compose up
+   cd /workspaces/SasS-React/saas-platform && docker compose up -d --build
    ```
 
 ## 贡献
