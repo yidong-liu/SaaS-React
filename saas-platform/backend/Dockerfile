@@ -6,14 +6,16 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY backend/package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies (with --legacy-peer-deps to resolve conflicts)
+RUN npm install --legacy-peer-deps
 
 # Copy the rest of the application code
 COPY backend/src ./src
+COPY backend/tsconfig.json ./
+COPY backend/prisma ./prisma
 
 # Expose the application port
-EXPOSE 8000
+EXPOSE 3001
 
 # Command to run the application
-CMD ["node", "src/main.ts"]
+CMD ["npm", "run", "start"]
