@@ -1,4 +1,4 @@
-# SaaS Platform Backend
+# SaaS Platform Backend (Next.js + Prisma)
 
 ## 项目概述
 该项目是一个企业级 SaaS 平台的后端部分，基于 Node.js 和 TypeScript 构建。它提供了用户管理、认证、订阅等核心功能，并使用了现代的开发工具和最佳实践。
@@ -57,28 +57,42 @@ pnpm install
 - pnpm add <pkg> # 添加依赖
 - pnpm add -D <pkg> # 添加 dev 依赖
 - pnpm run build / pnpm run dev / pnpm run start / pnpm run test
-## 安装与运行
-1. 克隆项目：
-   ```
-   git clone <repository-url>
-   cd saas-platform/backend
-   ```
+## 快速启动
+1) 启动数据库（在仓库根）
+```
+docker compose up -d
+```
 
-2. 安装依赖：
-   ```
-   npm install
-   ```
+2) 生成 Prisma Client 与迁移（在 backend）
+```
+cd backend
+pnpm install
+pnpm run prisma:generate
+pnpm run prisma:migrate
+pnpm run db:seed
+```
 
-3. 配置环境变量：
-   复制 `.env.example` 为 `.env` 并根据需要进行修改。
+3) 启动开发服务器
+```
+pnpm run dev
+```
+访问：http://localhost:3001/users 与 http://localhost:3001/api/users
 
-4. 启动应用：
-   ```
-   npm run start:dev
-   ```
+## 目录与关键文件
+- `app/api/users/route.ts`：示例 API（GET/POST）
+- `app/users/page.tsx`：示例页面，展示 users
+- `prisma/schema.prisma`：数据模型
+- `prisma/seed.ts`：种子数据脚本
 
-## API 文档
-后端提供了 RESTful API 接口，详细的 API 文档请参考项目中的相关文档或使用 Swagger 进行查看。
+## 环境变量示例（backend/.env）
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=saas_platform
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/saas_platform
+```
 
 ## 贡献
 欢迎任何形式的贡献！请提交问题或拉取请求。
