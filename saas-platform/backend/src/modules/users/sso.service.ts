@@ -2,24 +2,24 @@
  * =====================================================
  * SSO 服务 (Single Sign-On Service)
  * =====================================================
- * 
+ *
  * @description
  * SSO 单点登录的核心业务逻辑服务
- * 
+ *
  * @responsibilities
  * - SSO 配置管理
  * - OAuth 2.0 流程处理
  * - 第三方认证提供商集成
  * - 用户信息同步
  * - JWT Token 生成
- * 
+ *
  * @supported_providers
  * - Google OAuth 2.0
  * - GitHub OAuth 2.0
  * - Microsoft Azure AD
  * - Okta
  * - SAML 2.0
- * 
+ *
  * @oauth_flow
  * 1. 配置 SSO 提供商（clientId, clientSecret）
  * 2. 生成授权 URL（包含 redirect_uri）
@@ -29,19 +29,19 @@
  * 6. 使用 Access Token 获取用户信息
  * 7. 创建或更新本地用户
  * 8. 生成 JWT Token 返回
- * 
+ *
  * @security
  * - 客户端密钥加密存储
  * - 授权码单次使用
  * - State 参数防 CSRF
  * - HTTPS 强制使用
- * 
+ *
  * @todo
  * - [ ] 实现 SAML 2.0 支持
  * - [ ] 添加 OpenID Connect 支持
  * - [ ] 实现 SSO Session 管理
  * - [ ] 添加用户属性映射配置
- * 
+ *
  * @author SaaS Platform Team
  * @since 1.0.0
  */
@@ -54,11 +54,11 @@ import { JwtService } from '@nestjs/jwt';
  * SSO 提供商枚举
  */
 export enum SSOProvider {
-  GOOGLE = 'GOOGLE',           // Google OAuth 2.0
-  GITHUB = 'GITHUB',           // GitHub OAuth
-  MICROSOFT = 'MICROSOFT',     // Microsoft Azure AD
-  OKTA = 'OKTA',               // Okta
-  SAML = 'SAML'                // SAML 2.0
+  GOOGLE = 'GOOGLE', // Google OAuth 2.0
+  GITHUB = 'GITHUB', // GitHub OAuth
+  MICROSOFT = 'MICROSOFT', // Microsoft Azure AD
+  OKTA = 'OKTA', // Okta
+  SAML = 'SAML', // SAML 2.0
 }
 
 type SSOConfig = any;
@@ -67,43 +67,43 @@ type SSOConfig = any;
  * 创建 SSO 配置 DTO
  */
 export interface CreateSSOConfigDto {
-  tenantId: string;           // 租户 ID
-  provider: SSOProvider;      // SSO 提供商
-  clientId: string;           // 客户端 ID
-  clientSecret: string;       // 客户端密钥
-  redirectUri?: string;       // 回调 URI
-  metadata?: any;             // 附加配置
+  tenantId: string; // 租户 ID
+  provider: SSOProvider; // SSO 提供商
+  clientId: string; // 客户端 ID
+  clientSecret: string; // 客户端密钥
+  redirectUri?: string; // 回调 URI
+  metadata?: any; // 附加配置
 }
 
 /**
  * 更新 SSO 配置 DTO
  */
 export interface UpdateSSOConfigDto {
-  clientId?: string;          // 客户端 ID
-  clientSecret?: string;      // 客户端密钥
-  redirectUri?: string;       // 回调 URI
-  metadata?: any;             // 附加配置
-  enabled?: boolean;          // 是否启用
+  clientId?: string; // 客户端 ID
+  clientSecret?: string; // 客户端密钥
+  redirectUri?: string; // 回调 URI
+  metadata?: any; // 附加配置
+  enabled?: boolean; // 是否启用
 }
 
 /**
  * SSO 登录 DTO
  */
 export interface SSOLoginDto {
-  provider: SSOProvider;      // SSO 提供商
-  code: string;               // 授权码
-  tenantId: string;           // 租户 ID
+  provider: SSOProvider; // SSO 提供商
+  code: string; // 授权码
+  tenantId: string; // 租户 ID
 }
 
 /**
  * SSO 用户信息接口
  */
 export interface SSOUserInfo {
-  email: string;              // 邮箱
-  firstName?: string;         // 名字
-  lastName?: string;          // 姓氏
-  avatar?: string;            // 头像 URL
-  providerId: string;         // 提供商用户 ID
+  email: string; // 邮箱
+  firstName?: string; // 名字
+  lastName?: string; // 姓氏
+  avatar?: string; // 头像 URL
+  providerId: string; // 提供商用户 ID
 }
 
 @Injectable()
@@ -118,7 +118,7 @@ export class SSOService {
    * 创建 SSO 配置
    * @param createDto - SSO 配置数据
    * @returns 创建的 SSO 配置
-   * 
+   *
    * @throws UnauthorizedException - 配置已存在
    */
   async createSSOConfig(createDto: CreateSSOConfigDto): Promise<SSOConfig> {
@@ -146,7 +146,7 @@ export class SSOService {
   async updateSSOConfig(
     tenantId: string,
     provider: SSOProvider,
-    updateDto: UpdateSSOConfigDto,
+    updateDto: UpdateSSOConfigDto
   ): Promise<SSOConfig> {
     const config = await this.findSSOConfig(tenantId, provider);
 
@@ -187,7 +187,9 @@ export class SSOService {
     });
   }
 
-  async handleSSOLogin(loginDto: SSOLoginDto): Promise<{ accessToken: string; refreshToken: string; user: any }> {
+  async handleSSOLogin(
+    loginDto: SSOLoginDto
+  ): Promise<{ accessToken: string; refreshToken: string; user: any }> {
     const { provider, code, tenantId } = loginDto;
 
     // 获取 SSO 配置
@@ -341,7 +343,7 @@ export class SSOService {
     // 1. 使用 code 换取 access_token
     // 2. 使用 access_token 获取用户信息
     // 这里是示例实现，实际需要调用 Google API
-    
+
     // TODO: 实现实际的 Google OAuth 流程
     throw new Error('Google SSO not fully implemented yet');
   }
