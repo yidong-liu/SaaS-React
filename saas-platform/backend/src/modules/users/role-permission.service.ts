@@ -1,30 +1,89 @@
+/**
+ * =====================================================
+ * 角色权限服务 (Role & Permission Service)
+ * =====================================================
+ * 
+ * @description
+ * RBAC (基于角色的访问控制) 核心业务逻辑服务
+ * 
+ * @responsibilities
+ * - 角色管理 (创建、查询、更新、删除)
+ * - 权限管理 (创建、查询、删除)
+ * - 角色权限关联
+ * - 权限检查
+ * - 审计日志记录
+ * 
+ * @rbac_model
+ * ```
+ * User (用户)
+ *   └─> UserRole (用户角色关联)
+ *         └─> Role (角色)
+ *               └─> RolePermission (角色权限关联)
+ *                     └─> Permission (权限)
+ * ```
+ * 
+ * @permission_format
+ * - resource: 资源名称（如 users, posts）
+ * - action: 操作类型（如 read, write, delete）
+ * - 示例: users:read, posts:write
+ * 
+ * @system_roles
+ * - admin: 系统管理员（所有权限）
+ * - manager: 管理员（大部分权限）
+ * - user: 普通用户（基础权限）
+ * - guest: 访客（只读权限）
+ * 
+ * @multi_tenancy
+ * 所有角色和权限都按租户隔离
+ * 
+ * @security
+ * - 系统角色不可删除
+ * - 权限变更自动审计
+ * - 租户级别数据隔离
+ * 
+ * @author SaaS Platform Team
+ * @since 1.0.0
+ */
+
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 type Role = any;
 type Permission = any;
 
+/**
+ * 创建角色 DTO
+ */
 export interface CreateRoleDto {
-  tenantId: string;
-  name: string;
-  description?: string;
-  permissionIds?: string[];
+  tenantId: string;           // 租户 ID
+  name: string;               // 角色名称
+  description?: string;       // 角色描述
+  permissionIds?: string[];   // 权限 ID 列表
 }
 
+/**
+ * 更新角色 DTO
+ */
 export interface UpdateRoleDto {
-  name?: string;
-  description?: string;
+  name?: string;              // 角色名称
+  description?: string;       // 角色描述
 }
 
+/**
+ * 创建权限 DTO
+ */
 export interface CreatePermissionDto {
-  resource: string;
-  action: string;
-  description?: string;
+  resource: string;           // 资源名称
+  action: string;             // 操作类型
+  description?: string;       // 权限描述
 }
 
+/**
+ * 分配权限 DTO
+ */
 export interface AssignPermissionsDto {
-  roleId: string;
-  permissionIds: string[];
+  roleId: string;             // 角色 ID
+  permissionIds: string[];    // 权限 ID 列表
 }
 
 @Injectable()
@@ -35,7 +94,15 @@ export class RolePermissionService {
     this.prisma = new PrismaClient();
   }
 
-  // ===== Role Management =====
+  // ==================== 角色管理 ====================
+  
+  /**
+   * 创建角色
+   * @param createRoleDto - 角色创建数据
+   * @returns 创建的角色对象
+   * 
+   * @throws ConflictException - 角色名已存在
+   */
   async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
     const { tenantId, name, permissionIds, ...roleData } = createRoleDto;
 

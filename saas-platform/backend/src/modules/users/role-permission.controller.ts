@@ -1,3 +1,43 @@
+/**
+ * =====================================================
+ * 角色权限控制器 (Role & Permission Controller)
+ * =====================================================
+ * 
+ * @description
+ * 处理基于角色的访问控制 (RBAC) 相关的 HTTP 请求
+ * 
+ * @route /api/v1
+ * 
+ * @role_endpoints
+ * - POST /api/v1/roles - 创建角色
+ * - GET /api/v1/roles - 获取角色列表
+ * - GET /api/v1/roles/:id - 获取角色详情
+ * - PUT /api/v1/roles/:id - 更新角色
+ * - DELETE /api/v1/roles/:id - 删除角色
+ * 
+ * @permission_endpoints
+ * - POST /api/v1/permissions - 创建权限
+ * - GET /api/v1/permissions - 获取权限列表
+ * - GET /api/v1/permissions/:id - 获取权限详情
+ * - DELETE /api/v1/permissions/:id - 删除权限
+ * 
+ * @role_permission_endpoints
+ * - POST /api/v1/roles/:id/permissions - 为角色分配权限
+ * - GET /api/v1/roles/:id/permissions - 获取角色的权限列表
+ * 
+ * @rbac_model
+ * User -> UserRole -> Role -> RolePermission -> Permission
+ * 
+ * @features
+ * - 角色 CRUD
+ * - 权限 CRUD
+ * - 角色权限关联
+ * - 租户级别隔离
+ * 
+ * @author SaaS Platform Team
+ * @since 1.0.0
+ */
+
 import {
   Controller,
   Get,
@@ -23,7 +63,12 @@ import {
 export class RolePermissionController {
   constructor(private readonly rolePermissionService: RolePermissionService) {}
 
-  // ===== Role Endpoints =====
+  // ==================== 角色管理端点 ====================
+  
+  /**
+   * 创建角色
+   * @route POST /api/v1/roles
+   */
   @Post('roles')
   @HttpCode(HttpStatus.CREATED)
   async createRole(@Body() createRoleDto: CreateRoleDto) {
@@ -34,6 +79,10 @@ export class RolePermissionController {
     };
   }
 
+  /**
+   * 获取角色列表
+   * @route GET /api/v1/roles
+   */
   @Get('roles')
   async findAllRoles(@Request() req: any) {
     const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];

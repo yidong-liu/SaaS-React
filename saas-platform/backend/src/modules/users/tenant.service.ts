@@ -1,26 +1,67 @@
+/**
+ * =====================================================
+ * 租户服务 (Tenant Service)
+ * =====================================================
+ * 
+ * @description
+ * 租户管理的核心业务逻辑服务
+ * 
+ * @responsibilities
+ * - 租户创建、查询、更新、删除
+ * - 租户状态管理
+ * - 租户唯一性验证（slug、domain）
+ * - 租户配置管理
+ * - 租户统计信息
+ * 
+ * @multi_tenancy
+ * 租户是 SaaS 系统的核心隔离单元
+ * 每个租户拥有独立的数据空间
+ * 
+ * @uniqueness_constraints
+ * - slug: 租户唯一标识符（URL 友好）
+ * - domain: 自定义域名（可选）
+ * 
+ * @tenant_statuses
+ * - ACTIVE: 活跃状态，可正常使用
+ * - SUSPENDED: 暂停状态，限制访问
+ * - DELETED: 已删除，软删除标记
+ * 
+ * @author SaaS Platform Team
+ * @since 1.0.0
+ */
+
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 type Tenant = any;
 
+/**
+ * 租户状态枚举
+ */
 enum TenantStatus {
-  ACTIVE = 'ACTIVE',
-  SUSPENDED = 'SUSPENDED',
-  DELETED = 'DELETED'
+  ACTIVE = 'ACTIVE',         // 活跃
+  SUSPENDED = 'SUSPENDED',   // 暂停
+  DELETED = 'DELETED'        // 已删除
 }
 
+/**
+ * 创建租户数据传输对象
+ */
 export interface CreateTenantDto {
-  name: string;
-  slug: string;
-  domain?: string;
-  settings?: any;
+  name: string;       // 租户名称
+  slug: string;       // 租户标识符（唯一）
+  domain?: string;    // 自定义域名（可选）
+  settings?: any;     // 租户配置（JSON）
 }
 
+/**
+ * 更新租户数据传输对象
+ */
 export interface UpdateTenantDto {
-  name?: string;
-  domain?: string;
-  settings?: any;
-  status?: TenantStatus;
+  name?: string;          // 租户名称
+  domain?: string;        // 自定义域名
+  settings?: any;         // 租户配置
+  status?: TenantStatus;  // 租户状态
 }
 
 @Injectable()
@@ -31,6 +72,13 @@ export class TenantService {
     this.prisma = new PrismaClient();
   }
 
+  /**
+   * 创建新租户
+   * @param createTenantDto - 租户创建数据
+   * @returns 创建的租户对象
+   * 
+   * @throws ConflictException - slug 或 domain 已存在
+   */
   async create(createTenantDto: CreateTenantDto): Promise<Tenant> {
     const { slug, domain } = createTenantDto;
 

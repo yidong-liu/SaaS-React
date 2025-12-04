@@ -1,46 +1,109 @@
+/**
+ * =====================================================
+ * SSO 服务 (Single Sign-On Service)
+ * =====================================================
+ * 
+ * @description
+ * SSO 单点登录的核心业务逻辑服务
+ * 
+ * @responsibilities
+ * - SSO 配置管理
+ * - OAuth 2.0 流程处理
+ * - 第三方认证提供商集成
+ * - 用户信息同步
+ * - JWT Token 生成
+ * 
+ * @supported_providers
+ * - Google OAuth 2.0
+ * - GitHub OAuth 2.0
+ * - Microsoft Azure AD
+ * - Okta
+ * - SAML 2.0
+ * 
+ * @oauth_flow
+ * 1. 配置 SSO 提供商（clientId, clientSecret）
+ * 2. 生成授权 URL（包含 redirect_uri）
+ * 3. 用户重定向到提供商登录
+ * 4. 提供商回调返回授权码
+ * 5. 使用授权码获取 Access Token
+ * 6. 使用 Access Token 获取用户信息
+ * 7. 创建或更新本地用户
+ * 8. 生成 JWT Token 返回
+ * 
+ * @security
+ * - 客户端密钥加密存储
+ * - 授权码单次使用
+ * - State 参数防 CSRF
+ * - HTTPS 强制使用
+ * 
+ * @todo
+ * - [ ] 实现 SAML 2.0 支持
+ * - [ ] 添加 OpenID Connect 支持
+ * - [ ] 实现 SSO Session 管理
+ * - [ ] 添加用户属性映射配置
+ * 
+ * @author SaaS Platform Team
+ * @since 1.0.0
+ */
+
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 
+/**
+ * SSO 提供商枚举
+ */
 export enum SSOProvider {
-  GOOGLE = 'GOOGLE',
-  GITHUB = 'GITHUB',
-  MICROSOFT = 'MICROSOFT',
-  OKTA = 'OKTA',
-  SAML = 'SAML'
+  GOOGLE = 'GOOGLE',           // Google OAuth 2.0
+  GITHUB = 'GITHUB',           // GitHub OAuth
+  MICROSOFT = 'MICROSOFT',     // Microsoft Azure AD
+  OKTA = 'OKTA',               // Okta
+  SAML = 'SAML'                // SAML 2.0
 }
 
 type SSOConfig = any;
 
+/**
+ * 创建 SSO 配置 DTO
+ */
 export interface CreateSSOConfigDto {
-  tenantId: string;
-  provider: SSOProvider;
-  clientId: string;
-  clientSecret: string;
-  redirectUri?: string;
-  metadata?: any;
+  tenantId: string;           // 租户 ID
+  provider: SSOProvider;      // SSO 提供商
+  clientId: string;           // 客户端 ID
+  clientSecret: string;       // 客户端密钥
+  redirectUri?: string;       // 回调 URI
+  metadata?: any;             // 附加配置
 }
 
+/**
+ * 更新 SSO 配置 DTO
+ */
 export interface UpdateSSOConfigDto {
-  clientId?: string;
-  clientSecret?: string;
-  redirectUri?: string;
-  metadata?: any;
-  enabled?: boolean;
+  clientId?: string;          // 客户端 ID
+  clientSecret?: string;      // 客户端密钥
+  redirectUri?: string;       // 回调 URI
+  metadata?: any;             // 附加配置
+  enabled?: boolean;          // 是否启用
 }
 
+/**
+ * SSO 登录 DTO
+ */
 export interface SSOLoginDto {
-  provider: SSOProvider;
-  code: string;
-  tenantId: string;
+  provider: SSOProvider;      // SSO 提供商
+  code: string;               // 授权码
+  tenantId: string;           // 租户 ID
 }
 
+/**
+ * SSO 用户信息接口
+ */
 export interface SSOUserInfo {
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  avatar?: string;
-  providerId: string;
+  email: string;              // 邮箱
+  firstName?: string;         // 名字
+  lastName?: string;          // 姓氏
+  avatar?: string;            // 头像 URL
+  providerId: string;         // 提供商用户 ID
 }
 
 @Injectable()
@@ -51,6 +114,13 @@ export class SSOService {
     this.prisma = new PrismaClient();
   }
 
+  /**
+   * 创建 SSO 配置
+   * @param createDto - SSO 配置数据
+   * @returns 创建的 SSO 配置
+   * 
+   * @throws UnauthorizedException - 配置已存在
+   */
   async createSSOConfig(createDto: CreateSSOConfigDto): Promise<SSOConfig> {
     const { tenantId, provider } = createDto;
 

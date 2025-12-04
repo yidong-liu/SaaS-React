@@ -1,40 +1,85 @@
+/**
+ * =====================================================
+ * 用户服务 (Users Service)
+ * =====================================================
+ * 
+ * @description
+ * 用户管理的核心业务逻辑服务，处理用户的 CRUD 操作
+ * 
+ * @responsibilities
+ * - 用户创建、查询、更新、删除
+ * - 密码加密和验证
+ * - 角色分配
+ * - 权限查询
+ * - 审计日志记录
+ * 
+ * @multi_tenancy
+ * 所有操作都基于租户隔离，确保数据安全
+ * 
+ * @security
+ * - 密码使用 bcrypt 加密（salt rounds: 12）
+ * - 邮箱唯一性验证
+ * - 租户级别的数据隔离
+ * 
+ * @database
+ * 使用 Prisma ORM 操作 PostgreSQL 数据库
+ * 
+ * @audit
+ * 关键操作自动记录审计日志
+ * 
+ * @author SaaS Platform Team
+ * @since 1.0.0
+ */
+
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 type User = any;
 
+/**
+ * 用户状态枚举
+ */
 enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  SUSPENDED = 'SUSPENDED',
-  DELETED = 'DELETED'
+  ACTIVE = 'ACTIVE',         // 活跃
+  INACTIVE = 'INACTIVE',     // 未激活
+  SUSPENDED = 'SUSPENDED',   // 暂停
+  DELETED = 'DELETED'        // 已删除
 }
 
+/**
+ * 创建用户数据传输对象
+ */
 export interface CreateUserDto {
-  tenantId: string;
-  email: string;
-  username?: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  roleIds?: string[];
+  tenantId: string;      // 租户 ID
+  email: string;         // 邮箱（唯一）
+  username?: string;     // 用户名
+  password: string;      // 密码（明文，将自动加密）
+  firstName?: string;    // 名字
+  lastName?: string;     // 姓氏
+  phone?: string;        // 电话
+  roleIds?: string[];    // 角色 ID 列表
 }
 
+/**
+ * 更新用户数据传输对象
+ */
 export interface UpdateUserDto {
-  email?: string;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  avatar?: string;
-  status?: UserStatus;
+  email?: string;        // 邮箱
+  username?: string;     // 用户名
+  firstName?: string;    // 名字
+  lastName?: string;     // 姓氏
+  phone?: string;        // 电话
+  avatar?: string;       // 头像 URL
+  status?: UserStatus;   // 用户状态
 }
 
+/**
+ * 分配角色数据传输对象
+ */
 export interface AssignRoleDto {
-  userId: string;
-  roleIds: string[];
+  userId: string;        // 用户 ID
+  roleIds: string[];     // 角色 ID 列表
 }
 
 @Injectable()
@@ -45,6 +90,24 @@ export class UsersService {
     this.prisma = new PrismaClient();
   }
 
+  /**
+   * 创建新用户
+   * @param createUserDto - 用户创建数据
+   * @returns 创建的用户对象（包含角色信息）
+   * 
+   * @throws NotFoundException - 租户不存在
+   * @throws ConflictException - 邮箱已存在
+   * 
+   * @example
+   * ```typescript
+   * const user = await usersService.create({
+   *   tenantId: 'tenant-id',
+   *   email: 'user@example.com',
+   *   password: 'password123',
+   *   roleIds: ['role-id-1']
+   * });
+   * ```
+   */
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { tenantId, email, password, roleIds, ...userData } = createUserDto;
 
@@ -71,7 +134,7 @@ export class UsersService {
       throw new ConflictException(`User with email ${email} already exists in this tenant`);
     }
 
-    // 加密密码
+    // 加密密码（使用 bcrypt，12 轮哈希）
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // 创建用户
