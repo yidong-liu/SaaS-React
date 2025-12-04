@@ -1,6 +1,16 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { PrismaClient, SSOProvider, SSOConfig } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
+
+export enum SSOProvider {
+  GOOGLE = 'GOOGLE',
+  GITHUB = 'GITHUB',
+  MICROSOFT = 'MICROSOFT',
+  OKTA = 'OKTA',
+  SAML = 'SAML'
+}
+
+type SSOConfig = any;
 
 export interface CreateSSOConfigDto {
   tenantId: string;

@@ -10,8 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { SSOService, CreateSSOConfigDto, UpdateSSOConfigDto, SSOLoginDto } from './sso.service';
-import { SSOProvider } from '@prisma/client';
+import { SSOService, CreateSSOConfigDto, UpdateSSOConfigDto, SSOLoginDto, SSOProvider } from './sso.service';
 
 @Controller('api/v1/sso')
 export class SSOController {

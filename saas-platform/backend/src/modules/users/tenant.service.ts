@@ -1,5 +1,13 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaClient, Tenant, TenantStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+
+type Tenant = any;
+
+enum TenantStatus {
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  DELETED = 'DELETED'
+}
 
 export interface CreateTenantDto {
   name: string;

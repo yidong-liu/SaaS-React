@@ -8,9 +8,9 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*", "*"]
+      "@prisma/client": ["./node_modules/.prisma/client"]
     },
     "types": ["node"],
     "typeRoots": ["./node_modules/@types"],
