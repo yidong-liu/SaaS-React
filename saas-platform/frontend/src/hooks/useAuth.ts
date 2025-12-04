@@ -1,18 +1,24 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 
-const useAuth = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+}
 
-  const login = async (email, password) => {
+const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const login = async (email: string, password: string) => {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response: any = await apiClient.post('/auth/login', { email, password });
       setUser(response.data.user);
       localStorage.setItem('token', response.data.token);
-    } catch (err) {
-      setError(err.response.data.message);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -27,12 +33,12 @@ const useAuth = () => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await apiClient.get('/auth/me', {
+        const response: any = await apiClient.get('/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(response.data.user);
-      } catch (err) {
-        setError(err.response.data.message);
+      } catch (err: any) {
+        setError(err?.response?.data?.message || 'Auth check failed');
       }
     }
     setLoading(false);

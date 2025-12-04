@@ -176,7 +176,7 @@ export class RolePermissionService {
         tenantId,
         action: 'ROLE_UPDATED',
         resource: 'Role',
-        details: { roleId: id, changes: updateRoleDto },
+        details: JSON.stringify({ roleId: id, changes: updateRoleDto }),
       },
     });
 
@@ -305,10 +305,10 @@ export class RolePermissionService {
     return updated;
   }
 
-  async getRolePermissions(roleId: string, tenantId: string): Promise<Permission[]> {
+  async getRolePermissions(roleId: string, tenantId: string): Promise<any[]> {
     const role = await this.findRole(roleId, tenantId);
 
-    return role.permissions.map((rp) => rp.permission);
+    return (role as any).permissions?.map((rp: any) => rp.permission) || [];
   }
 
   // ===== Permission Checking =====

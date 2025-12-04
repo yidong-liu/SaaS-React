@@ -304,8 +304,8 @@ export class UsersService {
 
     const permissions = new Set<string>();
 
-    for (const userRole of user.userRoles) {
-      for (const rolePermission of userRole.role.permissions) {
+    for (const userRole of (user as any).userRoles || []) {
+      for (const rolePermission of userRole.role?.permissions || []) {
         permissions.add(`${rolePermission.permission.resource}:${rolePermission.permission.action}`);
       }
     }
@@ -357,5 +357,41 @@ export class UsersService {
     await this.prisma.auditLog.create({
       data,
     });
+  }
+
+  async createUser(data: { email: string; password: string; firstName?: string; lastName?: string }): Promise<User> {
+    // 默认使用第一个租户，实际应用中应该从上下文获取
+    const tenant = await this.prisma.tenant.findFirst();
+    if (!tenant) {
+      throw new NotFoundException('No tenant found');
+    }
+
+    return this.create({
+      tenantId: tenant.id,
+      email: data.email,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+    });
+  }
+
+  async validateUserPassword(credentials: { email: string; password: string }): Promise<User> {
+    // 默认使用第一个租户，实际应用中应该从上下文获取
+    const tenant = await this.prisma.tenant.findFirst();
+    if (!tenant) {
+      throw new NotFoundException('No tenant found');
+    }
+
+    const user = await this.findByEmail(credentials.email, tenant.id);
+    if (!user || !user.password) {
+      throw new BadRequestException('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid credentials');
+    }
+
+    return user;
   }
 }

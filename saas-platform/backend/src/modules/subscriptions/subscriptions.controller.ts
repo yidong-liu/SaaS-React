@@ -8,17 +8,17 @@ export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
   @Post()
-  create(@Body() createSubscriptionDto: CreateSubscriptionDto): Promise<Subscription> {
+  create(@Body() createSubscriptionDto: CreateSubscriptionDto): Subscription {
     return this.subscriptionsService.create(createSubscriptionDto);
   }
 
   @Get()
-  findAll(): Promise<Subscription[]> {
+  findAll(): Subscription[] {
     return this.subscriptionsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Subscription> {
+  findOne(@Param('id') id: string): Subscription | undefined {
     return this.subscriptionsService.findOne(id);
   }
 }

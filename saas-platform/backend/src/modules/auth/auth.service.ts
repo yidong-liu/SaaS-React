@@ -10,7 +10,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+  async register(authCredentialsDto: AuthCredentialsDto): Promise<any> {
     return this.usersService.createUser(authCredentialsDto);
   }
 
@@ -18,5 +18,13 @@ export class AuthService {
     const user = await this.usersService.validateUserPassword(authCredentialsDto);
     const accessToken = this.jwtService.sign({ username: user.username, sub: user.id });
     return { accessToken };
+  }
+
+  async getProfile(userId: string) {
+    const tenant = await this.usersService['prisma'].tenant.findFirst();
+    if (!tenant) {
+      throw new Error('No tenant found');
+    }
+    return this.usersService.findOne(userId, tenant.id);
   }
 }
