@@ -1,5 +1,8 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaClient, Role, Permission } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+
+type Role = any;
+type Permission = any;
 
 export interface CreateRoleDto {
   tenantId: string;
