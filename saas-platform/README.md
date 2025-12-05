@@ -58,22 +58,20 @@ saas-platform/
    cd saas-platform
    pnpm install
    ```
-
 2. 前端安装：
 
    ```
    cd frontend
    pnpm run dev
    ```
-
 3. 后端安装：
 
    ```
    cd backend
-   pnpm run start
+   pnpm run dev
    ```
-
 4. 使用 Docker 启动服务：
+
    ```
    cd /workspaces/SasS-React/saas-platform && docker compose down -v && docker compose up -d --build
    ```
